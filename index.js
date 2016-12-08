@@ -6,7 +6,6 @@ var path = require('path');
 
 app.use(express.static(__dirname));
 app.get('/', function(req, res){
-  // res.send('<h1>Hello world</h1>'); <--- This just sends a string
   res.sendFile(__dirname + '/index.html');
 });
 
@@ -18,11 +17,7 @@ app.get('/', function(req, res){
 //	Any objects that can be encoded as JSON will do, 
 //	and binary data is supported too.
 io.on('connection', function(socket){
-	console.log('a user connected:'+socket.id);
-
-	socket.on('chat message', function(msg){
-    	console.log('message: ' + msg);
-    });
+	console.log('A user connected:' + socket.id);
 
 	// Broadcast message to every logged in user
 	// socket.on('chat message', function(msg){

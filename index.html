@@ -1,42 +1,24 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Test</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-    </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-    <!-- This script below is for socket.io -->
+
+	<head>
+		<meta charset="utf-8" />
+		<title>Client-Server-Auth</title>
+
+		<!-- This script below is for socket.io -->
     <script src="/socket.io/socket.io.js"></script>
-    <!-- This script loaded below is for the form functions -->
-    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-        var socket = io(); // Notice that I’m not specifying any URL when I call io(), since it defaults to trying to connect to the host that serves the page.
 
-        //  When a user types in a message, the server should get a chat message event.
-        $('form').submit(function(){
-          socket.emit('chat message', $('#m').val());
-          $('#m').val('');
-          return false;
-        });
+		<style>
+		  body {
+		    padding: 0px;
+		    margin: 0px;
+		  }
+		  </style>
+	</head>
 
-        socket.on('chat message', function(msg){
-          $('#messages').append($('<li>').text(msg));
-        });
-
-    </script>
-
-  </body>
+	<body>  
+		<!-- include the main game file -->
+    TEST
+		<script src="js/game.js"></script>
+	</body>
 </html>
