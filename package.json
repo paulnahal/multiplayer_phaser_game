@@ -3,7 +3,7 @@
   "scripts": {
   "start": "node index.js"
 },
-  "name": "socket-chat-example",
+  "name": "serverclient_test",
   "version": "0.0.1",
   "description": "serverclient_test",
   "engines": {
