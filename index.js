@@ -19,6 +19,9 @@ app.get('/', function(req, res){
 // Any objects that can be encoded as JSON will do, and binary data is supported too.
 io.on('connection', function(socket){
 
+	// Let new player know who is already here.
+	socket.emit('whos_here',playerList);
+
 	// Upon connection, create a socket id key in playerlist for tracking further information.
 	playerList[socket.id] = {};
 
@@ -32,6 +35,17 @@ io.on('connection', function(socket){
 
         playersToConsole(); // Log all players to console
     });  
+
+    socket.on('player_loc_update', function(new_x,new_y){
+		// Adds new player and stats into playerList array
+		console.log(playerList[socket.id].name +' has moved to new x: '+new_x+', new y: '+new_y);
+		playerList[socket.id].pos_x = new_x;
+		playerList[socket.id].pos_y = new_y;
+
+		socket.broadcast.emit('player_move_serverSent', playerList[socket.id]);
+    });  
+
+
 		
 
 	socket.on('disconnect', function(){
