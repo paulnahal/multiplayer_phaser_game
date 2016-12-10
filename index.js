@@ -4,7 +4,8 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
 
-var clientList = [];
+// Store Players
+var playerList = {};
 
 
 app.use(express.static(__dirname));
@@ -17,18 +18,34 @@ app.get('/', function(req, res){
 // The main idea behind Socket.IO is that you can send and receive any events you want, with any data you want. 
 // Any objects that can be encoded as JSON will do, and binary data is supported too.
 io.on('connection', function(socket){
-	
-	clientList.push(socket.id);
-	clientsToConsole();
-	sendClientUpdate();
+
+	// Upon connection, create a socket id key in playerlist for tracking further information.
+	playerList[socket.id] = {};
+
+	socket.on('new_local_player', function(playerInfo){
+		// Adds new player and stats into playerList array
+        playerList[socket.id] = playerInfo;
+        console.log('New Logged on User: '+playerList[socket.id].name);
+
+        // Send all clients (except current sender) the new user's information
+        socket.broadcast.emit('new_remote_player',playerList[socket.id]);
+
+        playersToConsole(); // Log all players to console
+    });  
 		
 
 	socket.on('disconnect', function(){
 		//Searches for socket disconnected and removes from array.
-		removeClient(socket.id);
-		console.log('\n'+'User  '+socket.id+' Has Disconnected');
-		clientsToConsole();
-		sendClientUpdate();
+		console.log('\n'+'User  '+playerList[socket.id].name+' Has Disconnected');
+		
+		// Send all clients (except current sender) name of player to be removed from local client.
+		socket.broadcast.emit('remove_remote_player',playerList[socket.id].name);
+
+		// Remove from Server
+		removePlayer(socket.id);
+
+		playersToConsole();
+
   	});
 
 });
@@ -38,23 +55,17 @@ http.listen(process.env.PORT || 5000, function(){
   console.log('listening on', http.address().port);
 });
 
-function clientsToConsole(){
-		console.log('\n'+'Users Connected to Server:');
-		for (i = 0; i < clientList.length; i++) { 
-			console.log((i+1) + ': ' + clientList[i]);
-		}
+function playersToConsole(){
+        console.log('\n'+'There are '+Object.keys(playerList).length+' Players Logged On:');
+        if(Object.keys(playerList).length > 0){
+        	console.log(playerList);
+        } else {
+        	console.log('--No Players to Show--');
+        }
 }
 
-function sendClientUpdate(){
-		io.emit('clients_update_from_server',clientList);
-}
-
-function removeClient(socketid){
-		for (i = 0; i < clientList.length; i++) {
-			if (clientList[i] === socketid) {
-					clientList.splice(i, 1);
-			}
-		}
+function removePlayer(socketid){
+		delete playerList[socketid];
 }
 //	Express initializes app to be a function handler that you can supply to an HTTP server (as seen in line 2).
 //	We define a route handler / that gets called when we hit our website home.
