@@ -140,7 +140,7 @@ socket.on('remove_remote_player', function(remotePlayer){
 
 socket.on('player_move_serverSent', function(remotePlayer){
 	// character on another client has moved, here is new position. We must check if this character has been generated first.
-	if(!players[remotePlayer.name].hasOwnProperty('sprite') || (typeof players[remotePlayer.name].sprite === 'undefined')){
+	if(typeof players[remotePlayer.name].sprite === 'undefined'){
 		console.log('remote player not created yet for movement')
 	} else {
 		game.add.tween(players[remotePlayer.name].sprite).to( {x: remotePlayer.pos_x, y: remotePlayer.pos_y}, 500, Phaser.Easing.Linear.None, true); 
