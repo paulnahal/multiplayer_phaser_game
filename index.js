@@ -21,6 +21,7 @@ io.on('connection', function(socket){
 
 	// Let new player know who is already here.
 	socket.emit('whos_here',playerList);
+	console.log('playerlist sent to'+socket.id);
 
 	// Upon connection, create a socket id key in playerlist for tracking further information.
 	playerList[socket.id] = {};

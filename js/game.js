@@ -1,11 +1,14 @@
 var game = new Phaser.Game(320, 240, Phaser.AUTO, '950Empress', { preload: preload, create: create, update: update });
 
-var myName = prompt("Please enter your name:");
+var socket = io();
+
+while(!myName){
+    var myName = prompt("Please enter your name:");
+};
+
 var xin = Math.floor(Math.random() * (300 - 10 + 1)) + 10;
 var yin = Math.floor(Math.random() * (230 - 10 + 1)) + 10;
 
-
-var socket = io();
 var serverUpdate_count = 0;
 
 var currentServerPlayers = {}; // Initial master list from server
@@ -33,7 +36,7 @@ function create() {
 	for (var key in currentServerPlayers) {
 		createPlayer(currentServerPlayers[key].name, currentServerPlayers[key].pos_x, currentServerPlayers[key].pos_y);
 	}
-
+	console.log('all existing players created');
 	// Create our Local hero and update the server
 	newLocalPlayer();
 	socket.emit('new_local_player',{name: myName, pos_x: xin, pos_y: yin});
@@ -110,7 +113,6 @@ socket.on('new_remote_player', function(remotePlayer){
 socket.on('whos_here', function(playerList){
 
 	currentServerPlayers = playerList;
-	console.log('we loading');
 	if(Object.keys(playerList).length < 1){
 		console.log('no other players to load');
 	} else {
@@ -138,9 +140,12 @@ socket.on('remove_remote_player', function(remotePlayer){
 
 socket.on('player_move_serverSent', function(remotePlayer){
 	// character on another client has moved, here is new position. We must check if this character has been generated first.
-
-		console.log(players[remotePlayer.name].sprite.x);
-	 game.add.tween(players[remotePlayer.name].sprite).to( {x: remotePlayer.pos_x, y: remotePlayer.pos_y}, 500, Phaser.Easing.Linear.None, true); 
+	if(!players[remotePlayer.name].hasOwnProperty('sprite')){
+		console.log('remote player not created yet for movement')
+	} else {
+		game.add.tween(players[remotePlayer.name].sprite).to( {x: remotePlayer.pos_x, y: remotePlayer.pos_y}, 500, Phaser.Easing.Linear.None, true); 
+	}
+	
 
 	// players[remotePlayer.name].sprite.x = remotePlayer.pos_x;
 	// players[remotePlayer.name].sprite.y = remotePlayer.pos_y;
