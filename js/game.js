@@ -1,4 +1,4 @@
-var game = new Phaser.Game(320, 240, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(320, 240, Phaser.AUTO, '950Empress', { preload: preload, create: create, update: update });
 
 var myName = prompt("Please enter your name:");
 var xin = Math.floor(Math.random() * (300 - 10 + 1)) + 10;
@@ -110,7 +110,7 @@ socket.on('new_remote_player', function(remotePlayer){
 socket.on('whos_here', function(playerList){
 
 	currentServerPlayers = playerList;
-
+	console.log('we loading');
 	if(Object.keys(playerList).length < 1){
 		console.log('no other players to load');
 	} else {
