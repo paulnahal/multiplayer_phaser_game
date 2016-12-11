@@ -66,6 +66,7 @@ function update() {
     	players["local"].sprite.x += 1;
     }
 
+
     // Player Location Update (every 10 frames (1/6 of a second))
     if(serverUpdate_count < 10){
     	serverUpdate_count += 1;
@@ -141,8 +142,7 @@ socket.on('player_move_serverSent', function(remotePlayer){
 		console.log(players[remotePlayer.name].sprite.x);
 		console.log('Character not created yet, will wait.');
 	} else {
-	 game.add.tween(players[remotePlayer.name].sprite).to( {x: remotePlayer.pos_x, y: remotePlayer.pos_y}, 1000, Phaser.Easing.Linear.None, true); 
-		console.log(players[remotePlayer.name].sprite.x);
+	 game.add.tween(players[remotePlayer.name].sprite).to( {x: remotePlayer.pos_x, y: remotePlayer.pos_y}, 500, Phaser.Easing.Linear.None, true); 
 	}
 	// players[remotePlayer.name].sprite.x = remotePlayer.pos_x;
 	// players[remotePlayer.name].sprite.y = remotePlayer.pos_y;
