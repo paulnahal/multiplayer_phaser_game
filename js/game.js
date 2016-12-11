@@ -136,9 +136,12 @@ socket.on('remove_remote_player', function(remotePlayer){
 });
 
 socket.on('player_move_serverSent', function(remotePlayer){
-	// character on another client has moved, here is new position
-
+	// character on another client has moved, here is new position. We must check if this character has been generated first.
+	if(typeof variable === 'undefined' || !variable){
+		console.log('Character not created yet, will wait.');
+	} else {
 	 game.add.tween(players[remotePlayer.name].sprite).to( {x: remotePlayer.pos_x, y: remotePlayer.pos_y}, 1000, Phaser.Easing.Linear.None, true); 
+	}
 	// players[remotePlayer.name].sprite.x = remotePlayer.pos_x;
 	// players[remotePlayer.name].sprite.y = remotePlayer.pos_y;
 
