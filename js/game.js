@@ -34,15 +34,15 @@ function preload() {
 }
 
 function create() {
-
-	//createPlayer(myName, xin, yin);  
-    cursors = game.input.keyboard.createCursorKeys();
-
-	// Tell server about our local character & update master list
-	socket.emit('new_local_player',{name: myName, x: xin, y: yin});
-	// Let's as the server for a current list of players on the server. 
-	// Including our own, that way we all get generated together, like a nice family.
+	// Ask server for current players online
 	socket.emit('knock_knock');
+
+	// Create our Local hero and update the server
+	createPlayer(myName, xin, yin);  
+	// Tell server about our local character
+	socket.emit('new_local_player',{name: myName, x: xin, y: yin});
+
+	cursors = game.input.keyboard.createCursorKeys();
 
 }
 
@@ -79,8 +79,7 @@ function update() {
     // Player Location Update (every 10 frames (1/6 of a second))
     if(serverUpdate_count < 10){
     	serverUpdate_count += 1;
-    } else if (players[myName].sprite !== undefined){
-	} else {
+    } else {
     	socket.emit('player_loc_update', players[myName].sprite.x, players[myName].sprite.y);
     	serverUpdate_count = 0;
     }
