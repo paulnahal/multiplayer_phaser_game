@@ -53,8 +53,6 @@ function preload() {
 }
 
 function create() {
-	// Ask server for current players online - IT WORKED
-	socket.emit('knock_knock');
 
 	// Projectiles
 	projectiles = game.add.group();
@@ -68,6 +66,8 @@ function create() {
 	// Music, because why not
 	music = game.add.audio('music');
     music.play();
+	// Ask server for current players online - IT WORKED
+	socket.emit('knock_knock');
 
 	// Create our Local hero and update the server
 	createPlayer(myName, xin, yin);  
