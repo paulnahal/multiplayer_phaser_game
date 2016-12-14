@@ -39,9 +39,10 @@ function boot() {
 
 function preload() {
 	game.load.image('pic', 'assets/sprites/player.png');
+	game.load.start();
 	game.load.image('projectile', 'assets/images/projectile.png');
 	game.load.audio('music', 'assets/look_at_monkey.ogg');
-	game.load.start();
+
 
 	//scaling options
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -53,6 +54,14 @@ function preload() {
 }
 
 function create() {
+
+	// Ask server for current players online - IT WORKED
+	socket.emit('knock_knock');
+	
+	// Create our Local hero and update the server
+	createPlayer(myName, xin, yin); 
+	// Tell server about our local character
+	socket.emit('new_local_player',{name: myName, x: xin, y: yin});
 
 	// Projectiles
 	projectiles = game.add.group();
@@ -66,14 +75,7 @@ function create() {
 	// Music, because why not
 	music = game.add.audio('music');
     //music.play();
-	// Ask server for current players online - IT WORKED
-	socket.emit('knock_knock');
-
-	// Create our Local hero and update the server
-	createPlayer(myName, xin, yin);  
-	// Tell server about our local character
-	socket.emit('new_local_player',{name: myName, x: xin, y: yin});
-
+		
 	cursors = game.input.keyboard.createCursorKeys();
 }
 
@@ -85,7 +87,6 @@ function update() {
     	//players[key].sprite.x += 0.5;
 		if (players[key].sprite !== undefined){
 			players[key].text.alignTo(players[key].sprite, Phaser.CENTER_TOP);
-			game.physics.arcade.collide(players[myName].sprite, players[key].sprite);
 			
 		} else {
 			console.log(players[key].name + ' hasnt fully rendered yet');
