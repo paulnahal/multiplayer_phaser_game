@@ -79,7 +79,8 @@ function update() {
     // Player Location Update (every 10 frames (1/6 of a second))
     if(serverUpdate_count < 10){
     	serverUpdate_count += 1;
-    } else {
+    } else if (players[myName].sprite !== undefined){
+	} else {
     	socket.emit('player_loc_update', players[myName].sprite.x, players[myName].sprite.y);
     	serverUpdate_count = 0;
     }
