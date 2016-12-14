@@ -4,8 +4,13 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
 
-// Store Players
+// Master Player List 
 var playerList = {};
+// [Socket.id]: [Object] {
+				// name:
+				// x: 
+				// y:
+
 
 
 app.use(express.static(__dirname));
@@ -20,8 +25,8 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
 
 	// Let new player know who is already here.
-	socket.emit('whos_here',playerList);
-	console.log('playerlist sent to'+socket.id);
+	socket.emit('whos_here', playerList);
+	console.log('playerList sent to client: '+socket.id);
 
 	// Upon connection, create a socket id key in playerlist for tracking further information.
 	playerList[socket.id] = {};
@@ -40,8 +45,8 @@ io.on('connection', function(socket){
     socket.on('player_loc_update', function(new_x,new_y){
 		// Adds new player and stats into playerList array
 		console.log(playerList[socket.id].name +' has moved to new x: '+new_x+', new y: '+new_y);
-		playerList[socket.id].pos_x = new_x;
-		playerList[socket.id].pos_y = new_y;
+		playerList[socket.id].x = new_x;
+		playerList[socket.id].y = new_y;
 
 		socket.broadcast.emit('player_move_serverSent', playerList[socket.id]);
     });  
