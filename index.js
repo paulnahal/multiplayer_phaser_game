@@ -24,8 +24,10 @@ app.get('/', function(req, res){
 // Any objects that can be encoded as JSON will do, and binary data is supported too.
 io.on('connection', function(socket){
 
-	// Let new player know who is already here.
-	socket.emit('whos_here', playerList);
+	socket.on('knock_knock', function(){
+		// Let new player know who is already here.
+		socket.emit('whos_here', playerList);
+	});
 	console.log('playerList sent to client: '+socket.id);
 
 	// Upon connection, create a socket id key in playerlist for tracking further information.

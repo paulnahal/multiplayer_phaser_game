@@ -24,6 +24,7 @@ var style = { font: "10px Courier", fill: "#00ff44"};
 
 function preload() {
 	game.load.image('pic', 'assets/sprites/player.png');
+	game.load.start();
 	//scaling options
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     //have the game centered horizontally
@@ -33,12 +34,15 @@ function preload() {
 }
 
 function create() {
-	// Create our Local hero and update the server
-	createPlayer(myName, xin, yin);  
+
+	//createPlayer(myName, xin, yin);  
     cursors = game.input.keyboard.createCursorKeys();
 
-	// Tell server about our local character
+	// Tell server about our local character & update master list
 	socket.emit('new_local_player',{name: myName, x: xin, y: yin});
+	// Let's as the server for a current list of players on the server. 
+	// Including our own, that way we all get generated together, like a nice family.
+	socket.emit('knock_knock');
 
 }
 
@@ -98,12 +102,12 @@ function createPlayer(playerName,posx,posy) {
 	players[playerName] = {}; //Instantiaze a new player object
 	players[playerName].name = myName;
 
-    players[playerName].sprite = game.add.sprite(posx, posy, 'pic');
 	    if (playerName == myName){
 	    	players[playerName].text = game.add.text(0, 0, myName, style);
 	    } else {
 	    	players[playerName].text = game.add.text(0, 0, playerName, style);
 	    }
+	players[playerName].sprite = game.add.sprite(posx, posy, 'pic');
     players[playerName].sprite.anchor.setTo(0.5, 0.5);
 	console.log(playerName + ' has been rendered.')
 }
@@ -116,12 +120,9 @@ socket.on('new_remote_player', function(remotePlayer){
 });
 
 socket.on('whos_here', function(playerList){
-	console.log('server sent list: '+game.time.now);
-
 	if(Object.keys(playerList).length < 1){
 		console.log('No other players on server.');
 	} else {
-		// Load remote players on to local copy.
 		for(var key in playerList){
 			createPlayer(playerList[key].name, playerList[key].x, playerList[key].y);
 		}
