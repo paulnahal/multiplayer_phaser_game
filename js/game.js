@@ -34,7 +34,7 @@ function preload() {
 }
 
 function create() {
-	// Ask server for current players online
+	// Ask server for current players online - IT WORKED
 	socket.emit('knock_knock');
 
 	// Create our Local hero and update the server
