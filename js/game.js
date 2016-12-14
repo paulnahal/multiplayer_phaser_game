@@ -39,9 +39,9 @@ function boot() {
 
 function preload() {
 	game.load.image('pic', 'assets/sprites/player.png');
-	game.load.start();
 	game.load.image('projectile', 'assets/images/projectile.png');
 	game.load.audio('music', 'assets/look_at_monkey.ogg');
+	game.load.start();
 
 
 	//scaling options
@@ -57,11 +57,17 @@ function create() {
 
 	// Ask server for current players online - IT WORKED
 	socket.emit('knock_knock');
+	console.log('emit knock')
+	console.log(players)
+	console.log('how many ppl' + Object.keys(players).length);
 	
 	// Create our Local hero and update the server
 	createPlayer(myName, xin, yin); 
+	console.log('crt plr')
+	console.log(players)
 	// Tell server about our local character
 	socket.emit('new_local_player',{name: myName, x: xin, y: yin});
+	console.log('how many ppl' + Object.keys(players).length);
 
 	// Projectiles
 	projectiles = game.add.group();
@@ -150,8 +156,10 @@ function createPlayer(playerName,posx,posy) {
 	// Name and Seperation from Remote Players
 	    if (playerName == myName){
 	    	players[playerName].text = game.add.text(0, 0, myName, style);
+			console.log('how many ppl - our guy created - ' + Object.keys(players).length);
 	    } else {
 	    	players[playerName].text = game.add.text(0, 0, playerName, style);
+			console.log('how many ppl - remote - ' + Object.keys(players).length);
 	    }
 	// Score and Death initialized at zero
 	players[playerName].score = 0;
