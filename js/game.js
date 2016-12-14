@@ -65,7 +65,7 @@ function create() {
 
 	// Music, because why not
 	music = game.add.audio('music');
-    music.play();
+    //music.play();
 	// Ask server for current players online - IT WORKED
 	socket.emit('knock_knock');
 
@@ -146,12 +146,6 @@ function createPlayer(playerName,posx,posy) {
 	players[playerName] = {}; //Instantiaze a new player object
 	players[playerName].name = myName;
 
-	// Physical and Visual Character
-	players[playerName].sprite = game.add.sprite(posx, posy, 'pic');
-	game.physics.arcade.enable(players[playerName].sprite);
-	players[playerName].sprite.anchor.setTo(0.5, 0.5);
-	players[playerName].sprite.body.collideWorldBounds = true;
-
 	// Name and Seperation from Remote Players
 	    if (playerName == myName){
 	    	players[playerName].text = game.add.text(0, 0, myName, style);
@@ -161,6 +155,13 @@ function createPlayer(playerName,posx,posy) {
 	// Score and Death initialized at zero
 	players[playerName].score = 0;
 	players[playerName].death = 0;
+
+		// Physical and Visual Character
+	players[playerName].sprite = game.add.sprite(posx, posy, 'pic');
+	game.physics.arcade.enable(players[playerName].sprite);
+	players[playerName].sprite.anchor.setTo(0.5, 0.5);
+	players[playerName].sprite.body.collideWorldBounds = true;
+
 	console.log(playerName + ' has been rendered.')
 }
 
@@ -192,7 +193,6 @@ socket.on('whos_here', function(playerList){
 
 socket.on('remove_remote_player', function(remotePlayer){
 	// Server only sends name of player to destroy
-
 	players[remotePlayer].sprite.destroy();
 	players[remotePlayer].text.destroy();
 	delete players[remotePlayer];
