@@ -51,6 +51,11 @@ io.on('connection', function(socket){
 		playerList[socket.id].y = new_y;
 
 		socket.broadcast.emit('player_move_serverSent', playerList[socket.id]);
+    });
+
+	socket.on('incoming', function(angle){
+		// Adds new player and stats into playerList array
+		io.emit('incomingHit',playerList[socket.id].name, angle);
     });  
 
 
