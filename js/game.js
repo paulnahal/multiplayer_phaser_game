@@ -79,11 +79,14 @@ function create() {
 
 function update() {
 
+
+
     for (var key in players) {
     	//players[key].sprite.x += 0.5;
 		if (players[key].sprite !== undefined){
 			players[key].text.alignTo(players[key].sprite, Phaser.CENTER_TOP);
 			game.physics.arcade.collide(players[myName].sprite, players[key].sprite);
+			
 		} else {
 			console.log(players[key].name + ' hasnt fully rendered yet');
 		}
@@ -143,15 +146,18 @@ function createPlayer(playerName,posx,posy) {
 	players[playerName] = {}; //Instantiaze a new player object
 	players[playerName].name = myName;
 
+	// Physical and Visual Character
+	players[playerName].sprite = game.add.sprite(posx, posy, 'pic');
+	game.physics.arcade.enable(players[playerName].sprite);
+	players[playerName].sprite.anchor.setTo(0.5, 0.5);
+	players[playerName].sprite.body.collideWorldBounds = true;
+
+	// Name and Seperation from Remote Players
 	    if (playerName == myName){
 	    	players[playerName].text = game.add.text(0, 0, myName, style);
 	    } else {
 	    	players[playerName].text = game.add.text(0, 0, playerName, style);
 	    }
-	players[playerName].sprite = game.add.sprite(posx, posy, 'pic');
-	game.physics.arcade.enable(players[playerName].sprite);
-	players[playerName].sprite.anchor.setTo(0.5, 0.5);
-	//players[playerName].sprite.body.mass = -100;
 	// Score and Death initialized at zero
 	players[playerName].score = 0;
 	players[playerName].death = 0;
