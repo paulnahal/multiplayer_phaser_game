@@ -1,4 +1,4 @@
-var game = new Phaser.Game(320, 240, Phaser.AUTO, 'phaser-example', { boot: boot, preload: preload, create: create, update: update });
+var game = new Phaser.Game(320, 240, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update });
 
 // --------------General Local Player Interfacing Setup
 //	Function to grab Name, check if name is actually entered
@@ -18,35 +18,28 @@ var players = {};
 var socket = io();
 // To control data flow to server
 var serverUpdate_count = 0; 
-// To temporarily hold current players logged into server.
-// Populated by server with attrib: socket(key), name, posx, posy
-// Deleted after first use.
-var currentServPlayers = {};
 
 // Font Rendering
 var style = { font: "10px Courier", fill: "#00ff44"};
 
-function boot() {
+function preload() {
+	game.load.image('pic', 'assets/sprites/player.png');
 	//scaling options
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     //have the game centered horizontally
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
-
-}
-
-function preload() {
 	
-	game.load.image('pic', 'assets/sprites/player.png');
 }
 
 function create() {
-
 	// Create our Local hero and update the server
-	newLocalPlayer();
-	socket.emit('new_local_player',{name: myName, x: xin, y: yin});
-    
+	createPlayer(myName, xin, yin);  
     cursors = game.input.keyboard.createCursorKeys();
+
+	// Tell server about our local character
+	socket.emit('new_local_player',{name: myName, x: xin, y: yin});
+
 }
 
 function update() {
@@ -63,54 +56,35 @@ function update() {
 
 	if (cursors.up.isDown)
     {
-    	players["local"].sprite.y -= 1;
+    	players[myName].sprite.y -= 1;
     }
     else if (cursors.down.isDown)
     {
-    	players["local"].sprite.y += 1;
+    	players[myName].sprite.y += 1;
     }
 
     if (cursors.left.isDown)
     {
-    	players["local"].sprite.x -= 1;
+    	players[myName].sprite.x -= 1;
     }
     else if (cursors.right.isDown)
     {
-    	players["local"].sprite.x += 1;
+    	players[myName].sprite.x += 1;
     }
 
     // Player Location Update (every 10 frames (1/6 of a second))
     if(serverUpdate_count < 10){
     	serverUpdate_count += 1;
     } else {
-    	socket.emit('player_loc_update', players["local"].sprite.x, players["local"].sprite.y);
+    	socket.emit('player_loc_update', players[myName].sprite.x, players[myName].sprite.y);
     	serverUpdate_count = 0;
     }
+
     
 	
 }
 //----------------------------------------ACTOR CREATION-----------------
 //----------------------------------------------------------------------------------
-function newLocalPlayer() {
-
-	players["local"] = {}; //Instantiaze a new player object for local
-	players["local"].name = myName;
-
-	createPlayer("local", xin, yin);
-}
-
-function createPlayer(playerName,posx,posy) {
-
-    players[playerName].sprite = game.add.sprite(posx, posy, 'pic');
-	    if (playerName == "local"){
-	    	players[playerName].text = game.add.text(0, 0, myName, style);
-	    } else {
-	    	players[playerName].text = game.add.text(0, 0, playerName, style);
-	    }
-    players[playerName].sprite.anchor.setTo(0.5, 0.5);
-	console.log(playerName + ' has been rendered.')
-}
-
 function askUserName() {
 	name = prompt("Please enter your name:");
 	if (name === "") {name = "No Name";}	// user pressed OK, but the input field was empty
@@ -119,30 +93,40 @@ function askUserName() {
 	return name;
 }
 
+function createPlayer(playerName,posx,posy) {
+
+	players[playerName] = {}; //Instantiaze a new player object
+	players[playerName].name = myName;
+
+    players[playerName].sprite = game.add.sprite(posx, posy, 'pic');
+	    if (playerName == myName){
+	    	players[playerName].text = game.add.text(0, 0, myName, style);
+	    } else {
+	    	players[playerName].text = game.add.text(0, 0, playerName, style);
+	    }
+    players[playerName].sprite.anchor.setTo(0.5, 0.5);
+	console.log(playerName + ' has been rendered.')
+}
+
+
 socket.on('new_remote_player', function(remotePlayer){
 	// Server send name, position x, position y
-	players[remotePlayer.name] = {}; //Instantiaze a new player object for remote player
-	players[remotePlayer.name].name = remotePlayer.name;
-
 	createPlayer(remotePlayer.name, remotePlayer.x, remotePlayer.y);
 
 });
 
 socket.on('whos_here', function(playerList){
+	console.log('server sent list: '+game.time.now);
 
 	if(Object.keys(playerList).length < 1){
 		console.log('No other players on server.');
 	} else {
-		//Instantiaze a new player object for remote player
-        for (var key in playerList) {
-	    	players[playerList[key].name] = {};
-			players[playerList[key].name].name = playerList[key].name;
-			console.log('Welcome, say hello to: ' + playerList[key].name + ' at client ' + Object.keys(playerList));
+		// Load remote players on to local copy.
+		for(var key in playerList){
 			createPlayer(playerList[key].name, playerList[key].x, playerList[key].y);
 		}
-	
 	}
-});
+}.bind(this));
 
 
 //----------------------------------------------------------------------------------
