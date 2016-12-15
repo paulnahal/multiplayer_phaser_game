@@ -45,7 +45,7 @@ io.on('connection', function(socket){
 
     socket.on('player_loc_update', function(new_x,new_y){
 
-		if (typeof playerList[socket.id].name !== "undefined"){
+		if (playerList[socket.id].name !== undefined){
 				// Adds new player and stats into playerList array
 				console.log(playerList[socket.id].name +' has moved to new x: '+new_x+', new y: '+new_y);
 				playerList[socket.id].x = new_x;
