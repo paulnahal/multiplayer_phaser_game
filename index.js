@@ -45,7 +45,7 @@ io.on('connection', function(socket){
 
     socket.on('player_loc_update', function(new_x,new_y){
 		// Adds new player and stats into playerList array
-		console.log(playerList[socket.id].name +' has moved to new x: '+new_x+', new y: '+new_y);
+		// console.log(playerList[socket.id].name +' has moved to new x: '+new_x+', new y: '+new_y);
 		playerList[socket.id].x = new_x;
 		playerList[socket.id].y = new_y;
 
@@ -56,6 +56,13 @@ io.on('connection', function(socket){
 	socket.on('incoming', function(angle){
 		// Adds new player and stats into playerList array
 		io.emit('incomingHit',playerList[socket.id].name, angle);
+    });  
+	socket.on('player_hit', function(attacker){
+		// Adds new player and stats into playerList array
+		io.emit('playerHit_serv', playerList[socket.id].name, attacker);
+		playerList[socket.id].health -= 1;
+		// console.log(playerList[socket.id].name + " got hit, health: "+ playerList[socket.id].health);
+		// console.log(playerList[attacker].name + " scores 10 points, now: "+ playerList[socket.id].score);
     });  
 
 

@@ -8,6 +8,7 @@ var xin = Math.floor(Math.random() * (300 - 10 + 1)) + 10;
 var yin = Math.floor(Math.random() * (230 - 10 + 1)) + 10;
 // 	Keyboard input
 var cursors;
+var displayText;
 // Will be our client actors with renderable qualities (Local & Remote will be represented by this object.)
 var players = {}; 
 // name <-- Key
@@ -64,7 +65,7 @@ function create() {
 	createPlayer(myName, xin, yin); 
 
 	// Tell server about our local character
-	socket.emit('new_local_player',{name: myName, x: xin, y: yin});
+	socket.emit('new_local_player',{name: myName, x: xin, y: yin, health: 5, score: 0});
 	console.log('how many ppl' + Object.keys(players).length);
 
 	// Projectiles
@@ -140,7 +141,6 @@ function update() {
     	serverUpdate_count = 0;
     }
 
-
 	game.physics.arcade.overlap(projectiles, players[myName].sprite, projectileHit, null, this);    
 	
 }
@@ -167,9 +167,12 @@ function createPlayer(playerName,posx,posy) {
 	    	players[playerName].text = game.add.text(0, 0, playerName, style);
 			console.log('how many ppl - remote - ' + Object.keys(players).length);
 	    }
-	// Score and Death initialized at zero
+
+	// Health and score
+	players[playerName].health = 5;
 	players[playerName].score = 0;
-	players[playerName].death = 0;
+	players[playerName].textHealth = game.add.text(10, 10,'', style);
+	players[myName].textHealth.text = 'Health: 5/5'
 
 		// Physical and Visual Character
 	players[playerName].sprite = game.add.sprite(posx, posy, 'pic');
@@ -259,11 +262,24 @@ function projectileHit(player,beercan){
 	if (beercan.name == players[myName].name){
 		console.log("just u");	
 	} else {
-		console.log("BOOM U GOT HIT BY: " + beercan.name);
+		socket.emit('player_hit',beercan.name);
+
+		players[myName].health--;
+		players[myName].textHealth.text = 'Health: ' + players[myName].health + '/5';
 		beercan.kill();
-		    var explosion = explosions.getFirstExists(false);
-			explosion.reset(players[myName].sprite.x, players[myName].sprite.y);
-			explosion.play('boom', 30, false, true);
+
+	if(players[myName].health == 0){
+		stateText = game.add.text(16,120,"You died, refresh browser", { font: '20px Arial', fill: '#fff' });
+		socket.disconnect();
+	}
+
 	}
 
 }
+
+socket.on('playerHit_serv', function(victim, attacker){
+		// Play an explosion
+		var explosion = explosions.getFirstExists(false);
+		explosion.reset(players[victim].sprite.x, players[victim].sprite.y);
+		explosion.play('boom', 30, false, true);
+}.bind(this));
