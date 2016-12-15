@@ -44,18 +44,12 @@ io.on('connection', function(socket){
     });  
 
     socket.on('player_loc_update', function(new_x,new_y){
+		// Adds new player and stats into playerList array
+		console.log(playerList[socket.id].name +' has moved to new x: '+new_x+', new y: '+new_y);
+		playerList[socket.id].x = new_x;
+		playerList[socket.id].y = new_y;
 
-		if (playerList[socket.id].name !== undefined){
-				// Adds new player and stats into playerList array
-				console.log(playerList[socket.id].name +' has moved to new x: '+new_x+', new y: '+new_y);
-				playerList[socket.id].x = new_x;
-				playerList[socket.id].y = new_y;
-
-				socket.broadcast.emit('player_move_serverSent', playerList[socket.id]);
-			}
-			else {
-				// BAD - Must REMOVE this logic!
-			}
+		socket.broadcast.emit('player_move_serverSent', playerList[socket.id]);
 
     });
 

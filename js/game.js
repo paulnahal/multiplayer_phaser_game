@@ -15,7 +15,8 @@ var players = {};
 // name.yext
 
 //---------------Projectile Setup
-var beercan;
+var projectiles;
+var explosions;
 var fireRate = 500;
 var nextFire = 0;
 
@@ -39,10 +40,11 @@ function boot() {
 
 function preload() {
 	game.load.image('pic', 'assets/sprites/player.png');
+	game.load.start();
 	game.load.image('projectile', 'assets/images/projectile.png');
 	game.load.audio('music', 'assets/look_at_monkey.ogg');
+	game.load.spritesheet('boom', 'assets/sprites/explode.png', 128, 128);
 	game.load.start();
-
 
 	//scaling options
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -57,14 +59,10 @@ function create() {
 
 	// Ask server for current players online - IT WORKED
 	socket.emit('knock_knock');
-	console.log('emit knock')
-	console.log(players)
-	console.log('how many ppl' + Object.keys(players).length);
 	
 	// Create our Local hero and update the server
 	createPlayer(myName, xin, yin); 
-	console.log('crt plr')
-	console.log(players)
+
 	// Tell server about our local character
 	socket.emit('new_local_player',{name: myName, x: xin, y: yin});
 	console.log('how many ppl' + Object.keys(players).length);
@@ -78,6 +76,15 @@ function create() {
 	projectiles.setAll('checkWorldBounds', true);
     projectiles.setAll('outOfBoundsKill', true);
 
+	//  An explosion pool
+    explosions = game.add.group();
+    explosions.createMultiple(30, 'boom');
+	explosions.setAll('anchor.x', 0.5);
+    explosions.setAll('anchor.y', 0.5);
+    explosions.forEach( function(explosion) {
+        explosion.animations.add('boom');
+    });
+
 	// Music, because why not
 	music = game.add.audio('music');
     //music.play();
@@ -86,8 +93,6 @@ function create() {
 }
 
 function update() {
-
-
 
     for (var key in players) {
     	//players[key].sprite.x += 0.5;
@@ -135,7 +140,8 @@ function update() {
     	serverUpdate_count = 0;
     }
 
-    
+
+	game.physics.arcade.overlap(projectiles, players[myName].sprite, projectileHit, null, this);    
 	
 }
 //----------------------------------------ACTOR CREATION-----------------
@@ -167,7 +173,7 @@ function createPlayer(playerName,posx,posy) {
 
 		// Physical and Visual Character
 	players[playerName].sprite = game.add.sprite(posx, posy, 'pic');
-	game.physics.arcade.enable(players[playerName].sprite);
+	game.physics.enable(players[playerName].sprite, Phaser.Physics.ARCADE);
 	players[playerName].sprite.anchor.setTo(0.5, 0.5);
 	players[playerName].sprite.body.collideWorldBounds = true;
 
@@ -216,7 +222,7 @@ socket.on('player_move_serverSent', function(remotePlayer){
 		// players[remotePlayer.name].sprite.y = remotePlayer.y;
 		game.add.tween(players[remotePlayer.name].sprite).to( {x: remotePlayer.x, y: remotePlayer.y}, 50, Phaser.Easing.Linear.None, true);
 	} else {
-		alert(" Remote Player Sprite is Not Defined ")
+		console.log(" Remote Player Sprite is Not Defined ")
 	}
 });
 
@@ -233,16 +239,31 @@ function trigger(angle){
 	}
 }
 
-socket.on('incomingHit', function(remotePlayer, angle){
-	fireProjectile(remotePlayer, angle);
+socket.on('incomingHit', function(projectilePlayer, angle){
+	fireProjectile(projectilePlayer, angle);
 });
 
-function fireProjectile(name, angle){
+function fireProjectile(projectilePlayer, angle){
 	// Note this angle has a small delta because of playermovement, need to revise
 	// If statement is used to not have insane amount of bullets & info sent to server
 		var beercan = projectiles.getFirstDead();
 		beercan.anchor.setTo(0.5, 0.5);
-		beercan.reset(players[name].sprite.x-4, players[name].sprite.y-8);
-		beercan.rotation = angle;
+		beercan.reset(players[projectilePlayer].sprite.x-4, players[projectilePlayer].sprite.y-4);
+		//beercan.rotation = angle;
 		game.physics.arcade.velocityFromRotation(angle, 300, beercan.body.velocity);
+		beercan.name = projectilePlayer;
+}
+
+function projectileHit(player,beercan){
+	
+	if (beercan.name == players[myName].name){
+		console.log("just u");	
+	} else {
+		console.log("BOOM U GOT HIT BY: " + beercan.name);
+		beercan.kill();
+		    var explosion = explosions.getFirstExists(false);
+			explosion.reset(players[myName].sprite.x, players[myName].sprite.y);
+			explosion.play('boom', 30, false, true);
+	}
+
 }
