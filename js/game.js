@@ -219,7 +219,7 @@ socket.on('remove_remote_player', function(remotePlayer){
 
 socket.on('player_move_serverSent', function(remotePlayer){
 
-	if (players[remotePlayer.name].sprite !== undefined) { // strict(!) comparison
+	if (typeof players[remotePlayer.name].sprite != 'undefined') { // strict(!) comparison
   		// character on another client has moved, here is new position
 		// players[remotePlayer.name].sprite.x = remotePlayer.x;
 		// players[remotePlayer.name].sprite.y = remotePlayer.y;
