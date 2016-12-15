@@ -70,7 +70,7 @@ io.on('connection', function(socket){
 
 	socket.on('disconnect', function(){
 		//Searches for socket disconnected and removes from array.
-		console.log('\n'+'User  '+playerList[socket.id].name+' Has Disconnected');
+		//console.log('\n'+'User  '+playerList[socket.id].name+' Has Disconnected');
 		
 		// Send all clients (except current sender) name of player to be removed from local client.
 		socket.broadcast.emit('remove_remote_player',playerList[socket.id].name);
