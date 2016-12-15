@@ -11,8 +11,6 @@ var playerList = {};
 				// x: 
 				// y:
 
-
-
 app.use(express.static(__dirname));
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -27,11 +25,12 @@ io.on('connection', function(socket){
 	socket.on('knock_knock', function(){
 		// Let new player know who is already here.
 		socket.emit('whos_here', playerList);
+		// Upon announcement, create new player list entry
+		playerList[socket.id] = {};
 	});
 	console.log('playerList sent to client: '+socket.id);
 
-	// Upon connection, create a socket id key in playerlist for tracking further information.
-	playerList[socket.id] = {};
+
 
 	socket.on('new_local_player', function(playerInfo){
 		// Adds new player and stats into playerList array
@@ -45,12 +44,19 @@ io.on('connection', function(socket){
     });  
 
     socket.on('player_loc_update', function(new_x,new_y){
-		// Adds new player and stats into playerList array
-		console.log(playerList[socket.id].name +' has moved to new x: '+new_x+', new y: '+new_y);
-		playerList[socket.id].x = new_x;
-		playerList[socket.id].y = new_y;
 
-		socket.broadcast.emit('player_move_serverSent', playerList[socket.id]);
+		if (typeof playerList[socket.id].name !== "undefined"){
+				// Adds new player and stats into playerList array
+				console.log(playerList[socket.id].name +' has moved to new x: '+new_x+', new y: '+new_y);
+				playerList[socket.id].x = new_x;
+				playerList[socket.id].y = new_y;
+
+				socket.broadcast.emit('player_move_serverSent', playerList[socket.id]);
+			}
+			else {
+				// BAD - Must REMOVE this logic!
+			}
+
     });
 
 	socket.on('incoming', function(angle){

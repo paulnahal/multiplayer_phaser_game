@@ -1,4 +1,4 @@
-var game = new Phaser.Game(320, 240, Phaser.AUTO, 'phaser-example', { boot: boot, preload: preload, create: create, update: update, render: render });
+var game = new Phaser.Game(320, 240, Phaser.AUTO, 'phaser-example', { boot: boot, preload: preload, create: create, update: update });
 
 // --------------General Local Player Interfacing Setup
 //	Function to grab Name, check if name is actually entered
@@ -245,11 +245,4 @@ function fireProjectile(name, angle){
 		beercan.reset(players[name].sprite.x-4, players[name].sprite.y-8);
 		beercan.rotation = angle;
 		game.physics.arcade.velocityFromRotation(angle, 300, beercan.body.velocity);
-}
-
-function render() {
-
-    game.debug.text('Active beercans: ' + projectiles.countLiving() + ' / ' + projectiles.total, 0, 200);
-    game.debug.spriteInfo(players[myName].sprite, 0, 0);
-
 }
